@@ -1,0 +1,36 @@
+use std::fs;
+use std::io;
+use std::path::Path;
+mod archiver;
+use archiver::Format;
+use archiver::add_to_archive;
+//
+fn main() -> io::Result<()> {
+    let dir = "./sample";
+    let mut files_arr = Vec::new();
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        files_arr.push(path.display().to_string());
+    }
+
+    let mut assinged_files: Vec<Fromat> = Vec::new();
+    /*[
+        Format {
+            filename: "./file.txt".to_string(),
+            content: fs::read("./file.txt").expect("reading"),
+        },
+        Format {
+            filename: "./file1.txt".to_string(),
+            content: fs::read("./file1.txt").expect("reading"),
+        },
+        Format {
+            filename: "./file2.txt".to_string(),
+            content: fs::read("./file2.txt").expect("reading"),
+        },
+    ];
+    add_to_archive(&file_arr);
+    */
+
+    Ok(())
+}
