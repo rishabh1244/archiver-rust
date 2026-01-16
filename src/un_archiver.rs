@@ -1,24 +1,43 @@
+use std::path::Path;
 use std::{fs, io};
 pub const MAGIC: &[u8] = b"THISARCHIVE";
 
 pub fn un_archive(dot_arc: String) -> io::Result<()> {
-    let mut byte_data = fs::read(dot_arc)?;
+    let byte_data = fs::read(dot_arc)?;
 
     if byte_data.len() < MAGIC.len() {
         println!("Invalid Filetype");
         return Ok(());
     }
-    let slice_data = &byte_data[0..MAGIC.len()];
+    let mut i = MAGIC.len(); // skip magic
 
-    if slice_data != MAGIC {
-        println!("Invalid Filetype");
-        return Ok(());
+    while i < byte_data.len() - 1 {
+        let name_len = u16::from_le_bytes(byte_data[i..i + 2].try_into().unwrap()) as usize;
+        i += 2;
+
+        let file_size = u64::from_le_bytes(byte_data[i..i + 8].try_into().unwrap()) as usize;
+        i += 8;
+
+        let name_bytes = &byte_data[i..i + name_len];
+        i += name_len;
+
+        let name = std::str::from_utf8(name_bytes).unwrap();
+        println!("name_len = {}", name_len);
+        println!("name = {}", name);
+
+        let content = byte_data[i..i + file_size].to_vec();
+        i += file_size;
+
+        println!("content bytes = {}", content.len());
+        // find the size of the rest of file
+
+        let path = Path::new(name);
+
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?
+        }
+        fs::write(path, content);
     }
-    // uncompress the files
-    byte_data = byte_data[MAGIC.len()..byte_data.len()].to_vec();
-    let _name_len = u16::from_le_bytes([byte_data[0], byte_data[1]]) as usize;
-    println!("{}", _name_len);
-    // find the size of the rest of file
 
     Ok(())
 }
