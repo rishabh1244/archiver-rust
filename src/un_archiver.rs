@@ -1,5 +1,6 @@
 use std::path::Path;
 use std::{fs, io};
+
 pub const MAGIC: &[u8] = b"THISARCHIVE";
 
 pub fn un_archive(dot_arc: String) -> io::Result<()> {
